@@ -71,8 +71,8 @@ describe('buildTemplateVars', () => {
     it('includes i18n partial when enabled', () => {
         const answers = { ...MINIMAL_ANSWERS, i18n: true };
         const vars = buildTemplateVars(answers);
-        expect(vars.WEBAPI_PLUGIN_IMPORTS).toContain('i18nPlugin');
-        expect(vars.WEBAPI_PLUGIN_REGISTRATIONS).toContain('i18nPlugin');
+        expect(vars.WEBAPI_PLUGIN_IMPORTS).toContain('createI18nPlugin');
+        expect(vars.WEBAPI_PLUGIN_REGISTRATIONS).toContain('createI18nPlugin');
     });
 });
 
