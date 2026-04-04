@@ -1,5 +1,5 @@
-import { databaseToSchema } from 'blendsdk/codegen';
-import * as path from 'path';
+import { SchemaContainer, TypeGenerator } from 'blendsdk/codegen';
+import * as path from 'node:path';
 
 /**
  * {{PROJECT_NAME}} Code Generator
@@ -20,6 +20,9 @@ const packageScope = '{{PACKAGE_SCOPE}}';
 
 export async function generate(): Promise<void> {
     console.log(`🔧 Running code generation for {{PROJECT_NAME}}...`);
+
+    const container = new SchemaContainer();
+    const $ = container.scope();
 
     // TODO: Add database schema definitions
     // TODO: Add type generation

@@ -1,7 +1,8 @@
 
 // i18n plugin
-app.use(i18nPlugin({
+app.use(createI18nPlugin({
     defaultLocale: 'en',
-    supportedLocales: ['en', 'nl'],
-    resourcePath: './resources/i18n',
+    sources: [
+        jsonFileSource({ paths: ['./resources/i18n/*.json'] }),
+    ],
 }));

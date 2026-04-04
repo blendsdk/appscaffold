@@ -15,7 +15,6 @@ export function buildTemplateVars(answers: ScaffoldAnswers): TemplateVars {
         DB_NAME: answers.dbName,
         DB_PORT: answers.dbPort,
         REDIS_PORT: answers.redisPort,
-        NCU_EXCLUDES: 'blendsdk,@fluentui/*,react,react-dom,@types/react,@types/react-dom',
     };
 
     // Conditional partials — deps

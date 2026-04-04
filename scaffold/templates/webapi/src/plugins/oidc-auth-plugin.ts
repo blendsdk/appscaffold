@@ -1,4 +1,5 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Express } from 'express';
+import type { WebApplication, Plugin } from 'blendsdk/webafx';
 
 /**
  * OIDC Authentication Plugin for {{PROJECT_NAME}}.
@@ -20,11 +21,13 @@ export interface OidcConfig {
 export function oidcAuthPlugin(config: OidcConfig) {
     return {
         name: 'oidc-auth',
-        register: (app: any) => {
+        factory: async (params: { app: WebApplication; express: Express }): Promise<Plugin> => {
+            const { express } = params;
+
             // TODO: Implement OIDC discovery and token validation
             // This is a scaffold — implement provider-specific logic here
 
-            app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+            express.use('/api', (req, res, next) => {
                 // Skip health endpoint
                 if (req.path === '/health' || req.path === '/api/health') {
                     return next();
@@ -42,6 +45,8 @@ export function oidcAuthPlugin(config: OidcConfig) {
 
                 next();
             });
+
+            return {};
         },
     };
 }

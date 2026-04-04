@@ -1,4 +1,5 @@
 import { WebApplication } from 'blendsdk/webafx';
+import type { ServiceContainer, ApplicationSettings } from 'blendsdk/webafx';
 import { PostgreSQLDatabase } from 'blendsdk/postgresql';
 import { redisCachePlugin } from 'blendsdk/webafx-cache';
 {{WEBAPI_PLUGIN_IMPORTS}}
@@ -15,7 +16,7 @@ const app = new WebApplication({
 app.registerService({
     name: 'db',
     type: 'singleton',
-    factory: async (container, settings) => {
+    factory: async (container: ServiceContainer, settings: ApplicationSettings) => {
         const db = new PostgreSQLDatabase({
             host: settings.get('DB_HOST', 'localhost'),
             port: settings.get('DB_PORT', {{DB_PORT}}),
@@ -26,7 +27,7 @@ app.registerService({
         await db.connect();
         return db;
     },
-    dispose: async (db) => await db.disconnect(),
+    dispose: async (db: unknown) => await (db as PostgreSQLDatabase).disconnect(),
 });
 
 // Redis cache plugin

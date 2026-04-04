@@ -184,8 +184,7 @@ function buildTemplateVars(answers) {
     FRONTEND_PORT: answers.frontendPort,
     DB_NAME: answers.dbName,
     DB_PORT: answers.dbPort,
-    REDIS_PORT: answers.redisPort,
-    NCU_EXCLUDES: "blendsdk,@fluentui/*,react,react-dom,@types/react,@types/react-dom"
+    REDIS_PORT: answers.redisPort
   };
   vars.WEBAPI_DEPS_PARTIAL = "";
   if (answers.oidc) {
