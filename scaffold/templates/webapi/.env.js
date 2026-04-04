@@ -1,0 +1,16 @@
+export default {
+  PORT: {{BACKEND_PORT}},
+  ENV_MODE: 'development',
+  LOG_LEVEL: 'DEBUG',
+  CORS: true,
+  DB_HOST: 'localhost',
+  DB_PORT: {{DB_PORT}},
+  DB_NAME: '{{DB_NAME}}',
+  DB_USER: '{{DB_NAME}}',
+  DB_PASSWORD: 'secret',
+  REDIS_HOST: 'localhost',
+  REDIS_PORT: {{REDIS_PORT}},
+  REDIS_PASSWORD: 'secret',
+  PUBLIC_FOLDER: './resources/public/static',
+  STORAGE_FOLDER: './temp/storage',
+};

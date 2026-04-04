@@ -1,0 +1,8 @@
+
+// OIDC Authentication plugin
+app.use(oidcAuthPlugin({
+    issuerUrl: 'https://your-oidc-provider.com',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    redirectUri: 'http://localhost:{{BACKEND_PORT}}/api/auth/callback',
+}));

@@ -1,0 +1,31 @@
+{
+  "name": "{{PROJECT_NAME_LOWER}}",
+  "private": true,
+  "workspaces": {
+    "packages": ["packages/*"]
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter={{PACKAGE_SCOPE}}/webapi",
+    "dev:client": "turbo run dev --filter={{PACKAGE_SCOPE}}/webclient",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "typecheck": "turbo run typecheck",
+    "docker:dev": "docker compose -f packages/webapi/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f packages/webapi/docker/docker-compose.yml down",
+    "docker:reset": "docker compose -f packages/webapi/docker/docker-compose.yml down -v && yarn docker:dev",
+    "ncu": "ncu -u -x \"blendsdk,@fluentui/*,react,react-dom,@types/react,@types/react-dom\" && yarn workspaces foreach -A exec \"ncu -u -x 'blendsdk,@fluentui/*,react,react-dom,@types/react,@types/react-dom'\" && rm -fR node_modules yarn.lock && yarn install"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "npm-check-updates": "^17.0.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,7 @@
+
+// Mailer plugin (using Mailpit in development)
+app.use(smtpMailPlugin({
+    host: 'localhost',
+    port: 1025,
+    from: 'noreply@{{PROJECT_NAME_LOWER}}.local',
+}));

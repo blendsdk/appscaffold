@@ -1,0 +1,2 @@
+
+import { oidcAuthPlugin } from './plugins/oidc-auth-plugin.js';

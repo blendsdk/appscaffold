@@ -1,0 +1,14 @@
+{
+    "name": "app-scaffold-runner",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "description": "BlendSDK Application Scaffold Generator — bundled runner",
+    "main": "scaffold.js",
+    "bin": {
+        "scaffold": "scaffold.js"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    }
+}

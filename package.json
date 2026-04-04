@@ -1,0 +1,24 @@
+{
+    "name": "app-scaffold",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "description": "BlendSDK Application Scaffold Generator — generates complete BlendSDK v5 monorepo applications",
+    "scripts": {
+        "build": "node esbuild.config.mjs",
+        "dev": "tsx src/index.ts",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "esbuild": "^0.25.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.0",
+        "vitest": "^4.1.0"
+    }
+}

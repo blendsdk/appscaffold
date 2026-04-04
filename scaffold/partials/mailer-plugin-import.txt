@@ -1,0 +1,2 @@
+
+import { smtpMailPlugin } from 'blendsdk/webafx-mailer';

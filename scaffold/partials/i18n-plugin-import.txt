@@ -1,0 +1,2 @@
+
+import { i18nPlugin } from 'blendsdk/webafx-i18n';

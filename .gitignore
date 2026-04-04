@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tgz
+
+# The scaffold.js bundle IS committed (it's the distribution artifact)
+# scaffold/scaffold.js — DO NOT add to gitignore

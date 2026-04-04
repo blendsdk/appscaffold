@@ -1,0 +1,7 @@
+
+// i18n plugin
+app.use(i18nPlugin({
+    defaultLocale: 'en',
+    supportedLocales: ['en', 'nl'],
+    resourcePath: './resources/i18n',
+}));

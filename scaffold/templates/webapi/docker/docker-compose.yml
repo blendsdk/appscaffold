@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "{{DB_PORT}}:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      TZ: Europe/Amsterdam
+      PGTZ: Europe/Amsterdam
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+      - ../temp/dev-db:/var/lib/postgresql/data
+      - ../resources/database:/resources
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass secret
+    ports:
+      - "{{REDIS_PORT}}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "secret", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+{{DOCKER_MAILPIT_PARTIAL}}
