@@ -297,7 +297,7 @@ Build a professional TypeScript scaffold generator that creates complete BlendSD
 
 ### Starting a Session
 
-1. Reference this plan: "Implement Phase X, Session X.X per `plans/app-scaffold/99-execution-plan.md`"
+1. Reference this plan: "Implement Phase X, Session X.X per `plans/appscaffold/99-execution-plan.md`"
 
 ### Ending a Session
 
@@ -310,7 +310,7 @@ Build a professional TypeScript scaffold generator that creates complete BlendSD
 1. Review completed tasks in this checklist
 2. Mark completed items with [x]
 3. Start new conversation for next session
-4. Run `exec_plan app-scaffold` to continue
+4. Run `exec_plan appscaffold` to continue
 
 ---
 

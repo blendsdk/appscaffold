@@ -25,13 +25,13 @@ Generates complete [BlendSDK](https://github.com/blendsdk) v5 monorepo applicati
 ## Quick Start
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blendsdk/app-scaffold/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blendsdk/appscaffold/master/install.sh | bash
 ```
 
 Or with CLI flags (non-interactive):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blendsdk/app-scaffold/master/install.sh | bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/blendsdk/appscaffold/master/install.sh | bash -s -- \
   --name MyApp \
   --scope @myapp \
   --port 4000

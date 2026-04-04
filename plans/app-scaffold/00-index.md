@@ -31,7 +31,7 @@ The generator supports both interactive mode (readline prompts) and non-interact
 
 ```bash
 # Interactive mode — one-liner install
-curl -fsSL https://raw.githubusercontent.com/blendsdk/app-scaffold/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blendsdk/appscaffold/master/install.sh | bash
 
 # Non-interactive mode
 curl -fsSL .../install.sh | bash -s -- --name CastingAppST --scope @castingappst --port 4000 --with-oidc --with-i18n

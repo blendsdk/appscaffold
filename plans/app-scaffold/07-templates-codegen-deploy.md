@@ -208,12 +208,12 @@ Curl-based installer — same pattern as blue-green.
 # Downloads the scaffold repo and runs scaffold.js interactively.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/blendsdk/app-scaffold/master/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/blendsdk/appscaffold/master/install.sh | bash
 #   curl -fsSL .../install.sh | bash -s -- --name myapp --scope @myapp --port 4000
 # =============================================================================
 set -e
 
-REPO="blendsdk/app-scaffold"
+REPO="blendsdk/appscaffold"
 VERSION="${APP_SCAFFOLD_VERSION:-master}"
 ARCHIVE_URL="https://github.com/${REPO}/archive/refs/heads/${VERSION}.tar.gz"
 
@@ -231,11 +231,11 @@ fi
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-echo "📥 Downloading app-scaffold (${VERSION})..."
+echo "📥 Downloading appscaffold (${VERSION})..."
 curl -fsSL "$ARCHIVE_URL" -o "$TMPDIR/scaffold.tar.gz"
 tar -xzf "$TMPDIR/scaffold.tar.gz" -C "$TMPDIR"
 
-SCAFFOLD_DIR=$(find "$TMPDIR" -maxdepth 1 -type d -name "app-scaffold-*" | head -1)
+SCAFFOLD_DIR=$(find "$TMPDIR" -maxdepth 1 -type d -name "appscaffold-*" | head -1)
 
 if [ -z "$SCAFFOLD_DIR" ] || [ ! -f "$SCAFFOLD_DIR/scaffold/scaffold.js" ]; then
   echo "❌ Failed to extract scaffold." >&2

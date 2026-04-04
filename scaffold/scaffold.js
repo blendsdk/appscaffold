@@ -382,7 +382,7 @@ Examples:
   scaffold --name CastingAppST --scope @castingappst --port 4000
 
   # Via install.sh
-  curl -fsSL https://raw.githubusercontent.com/blendsdk/app-scaffold/master/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/blendsdk/appscaffold/master/install.sh | bash
 `;
 function parseArgs(args) {
   const flags = {};
