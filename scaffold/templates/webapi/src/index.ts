@@ -35,6 +35,7 @@ app.use(redisCachePlugin({
     rootKey: '{{PROJECT_NAME_LOWER}}',
     host: 'localhost',
     port: {{REDIS_PORT}},
+    password: 'secret',
     defaultTTL: 300,
 }));
 
