@@ -23,8 +23,8 @@ Options:
   --no-oidc               Exclude OIDC authentication
   --i18n                  Include i18n support (default: true)
   --no-i18n               Exclude i18n support
-  --mailer                Include email service
-  --no-mailer             Exclude email service (default)
+  --mailer                Include email service (default: true)
+  --no-mailer             Exclude email service
   --file-upload           Include file upload support
   --no-file-upload        Exclude file upload (default)
   --blue-green            Install blue-green deployment (default: true)
@@ -170,7 +170,7 @@ async function main(): Promise<void> {
 
     if (!flags.dryRun) {
         console.log('── Next Steps ────────────────────────────────');
-        console.log('  1. yarn install');
+        console.log('  1. yarn install && yarn ncu');
         console.log('  2. yarn docker:dev');
         console.log('  3. yarn dev');
         console.log('');

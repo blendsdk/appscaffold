@@ -67,7 +67,7 @@ async function runInteractivePrompts() {
     console.log("\u2500\u2500 Features \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     const oidc = await confirm(rl, "Include OIDC authentication?", true);
     const i18n = await confirm(rl, "Include i18n (internationalization)?", true);
-    const mailer = await confirm(rl, "Include email service (mailer)?", false);
+    const mailer = await confirm(rl, "Include email service (mailer)?", true);
     const fileUpload = await confirm(rl, "Include file upload support?", false);
     console.log("");
     console.log("\u2500\u2500 Deployment \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
@@ -106,7 +106,7 @@ function answersFromFlags(flags) {
     redisPort: flags.redisPort ?? DEFAULTS.redisPort,
     oidc: flags.oidc ?? true,
     i18n: flags.i18n ?? true,
-    mailer: flags.mailer ?? false,
+    mailer: flags.mailer ?? true,
     fileUpload: flags.fileUpload ?? false,
     blueGreen: flags.blueGreen ?? true
   };
@@ -363,8 +363,8 @@ Options:
   --no-oidc               Exclude OIDC authentication
   --i18n                  Include i18n support (default: true)
   --no-i18n               Exclude i18n support
-  --mailer                Include email service
-  --no-mailer             Exclude email service (default)
+  --mailer                Include email service (default: true)
+  --no-mailer             Exclude email service
   --file-upload           Include file upload support
   --no-file-upload        Exclude file upload (default)
   --blue-green            Install blue-green deployment (default: true)
@@ -492,7 +492,7 @@ async function main() {
   printSummary(results);
   if (!flags.dryRun) {
     console.log("\u2500\u2500 Next Steps \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
-    console.log("  1. yarn install");
+    console.log("  1. yarn install && yarn ncu");
     console.log("  2. yarn docker:dev");
     console.log("  3. yarn dev");
     console.log("");

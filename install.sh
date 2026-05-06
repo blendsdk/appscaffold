@@ -24,6 +24,11 @@ if ! command -v node &>/dev/null; then
   exit 1
 fi
 
+if ! command -v yarn &>/dev/null; then
+  echo "⚠️  yarn not found. Install it: npm install -g yarn" >&2
+  echo "   After installing, run: yarn install && yarn ncu" >&2
+fi
+
 # Download and extract
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
@@ -42,3 +47,18 @@ fi
 echo "🚀 Running scaffold generator..."
 echo ""
 node "$SCAFFOLD_DIR/scaffold/scaffold.js" "$@" < /dev/tty
+
+# Post-scaffold: ask user to run yarn install && yarn ncu (Decision per AR #2, AR #3)
+if command -v yarn &>/dev/null; then
+  echo ""
+  read -r -p "Run 'yarn install && yarn ncu' now? [Y/n] " response < /dev/tty
+  response=${response:-Y}
+  if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
+    echo ""
+    echo "📦 Running yarn install && yarn ncu..."
+    yarn install && yarn ncu
+  else
+    echo ""
+    echo "Skipped. Run manually: yarn install && yarn ncu"
+  fi
+fi
