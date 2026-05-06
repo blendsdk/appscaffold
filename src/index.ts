@@ -16,6 +16,7 @@ Options:
   --description <desc>    Project description
   --port <port>           Backend port (default: 4000)
   --frontend-port <port>  Frontend dev port (default: 5173)
+  --https-port <port>     HTTPS proxy port (default: 8443)
   --db-name <name>        Database name (default: <lowercase-name>)
   --db-port <port>        Database host port (default: 5432)
   --redis-port <port>     Redis host port (default: 6379)
@@ -65,6 +66,9 @@ function parseArgs(args: string[]): ScaffoldFlags {
                 break;
             case '--frontend-port':
                 flags.frontendPort = args[++i];
+                break;
+            case '--https-port':
+                flags.httpsPort = args[++i];
                 break;
             case '--db-name':
                 flags.dbName = args[++i];
@@ -169,10 +173,14 @@ async function main(): Promise<void> {
     printSummary(results);
 
     if (!flags.dryRun) {
+        const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, '')}.local`;
         console.log('── Next Steps ────────────────────────────────');
         console.log('  1. yarn install && yarn ncu');
-        console.log('  2. yarn docker:dev');
-        console.log('  3. yarn dev');
+        console.log('  2. yarn docker:certs');
+        console.log(`  3. Add to /etc/hosts:  127.0.0.1  ${hostname}`);
+        console.log('  4. yarn docker:dev');
+        console.log('  5. yarn dev');
+        console.log(`  6. Open https://${hostname}:${answers.httpsPort}`);
         console.log('');
     }
 

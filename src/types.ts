@@ -5,6 +5,7 @@ export interface ScaffoldAnswers {
     description: string;
     backendPort: string;
     frontendPort: string;
+    httpsPort: string;
     dbName: string;
     dbPort: string;
     redisPort: string;
@@ -22,6 +23,7 @@ export interface ScaffoldFlags {
     description?: string;
     port?: string;
     frontendPort?: string;
+    httpsPort?: string;
     dbName?: string;
     dbPort?: string;
     redisPort?: string;
@@ -64,6 +66,7 @@ export interface GenerateOptions {
 export const DEFAULTS = {
     backendPort: '4000',
     frontendPort: '5173',
+    httpsPort: '8443',
     dbPort: '5432',
     redisPort: '6379',
 } as const;

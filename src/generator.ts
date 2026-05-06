@@ -12,6 +12,7 @@ export function buildTemplateVars(answers: ScaffoldAnswers): TemplateVars {
         DESCRIPTION: answers.description,
         BACKEND_PORT: answers.backendPort,
         FRONTEND_PORT: answers.frontendPort,
+        HTTPS_PORT: answers.httpsPort,
         DB_NAME: answers.dbName,
         DB_PORT: answers.dbPort,
         REDIS_PORT: answers.redisPort,
@@ -112,6 +113,17 @@ export function buildFileList(answers: ScaffoldAnswers): FileEntry[] {
         {
             templatePath: 'webapi/docker/postgres/1.database.sh',
             destPath: 'packages/webapi/docker/postgres/1.database.sh',
+            executable: true,
+        },
+
+        // Nginx HTTPS development proxy
+        {
+            templatePath: 'webapi/docker/nginx/nginx.conf',
+            destPath: 'packages/webapi/docker/nginx/nginx.conf',
+        },
+        {
+            templatePath: 'webapi/docker/nginx/generate-certs.sh',
+            destPath: 'packages/webapi/docker/nginx/generate-certs.sh',
             executable: true,
         },
 

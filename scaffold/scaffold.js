@@ -11,6 +11,7 @@ import * as path from "node:path";
 var DEFAULTS = {
   backendPort: "4000",
   frontendPort: "5173",
+  httpsPort: "8443",
   dbPort: "5432",
   redisPort: "6379"
 };
@@ -64,6 +65,9 @@ async function runInteractivePrompts() {
     console.log("\u2500\u2500 Frontend Configuration \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     const frontendPort = await ask(rl, "Frontend dev port", DEFAULTS.frontendPort);
     console.log("");
+    console.log("\u2500\u2500 HTTPS Dev Proxy \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
+    const httpsPort = await ask(rl, "HTTPS proxy port", DEFAULTS.httpsPort);
+    console.log("");
     console.log("\u2500\u2500 Features \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     const oidc = await confirm(rl, "Include OIDC authentication?", true);
     const i18n = await confirm(rl, "Include i18n (internationalization)?", true);
@@ -79,6 +83,7 @@ async function runInteractivePrompts() {
       description,
       backendPort,
       frontendPort,
+      httpsPort,
       dbName,
       dbPort,
       redisPort,
@@ -101,6 +106,7 @@ function answersFromFlags(flags) {
     description: flags.description ?? "",
     backendPort: flags.port ?? DEFAULTS.backendPort,
     frontendPort: flags.frontendPort ?? DEFAULTS.frontendPort,
+    httpsPort: flags.httpsPort ?? DEFAULTS.httpsPort,
     dbName: flags.dbName ?? name.toLowerCase().replace(/[^a-z0-9_]/g, ""),
     dbPort: flags.dbPort ?? DEFAULTS.dbPort,
     redisPort: flags.redisPort ?? DEFAULTS.redisPort,
@@ -182,6 +188,7 @@ function buildTemplateVars(answers) {
     DESCRIPTION: answers.description,
     BACKEND_PORT: answers.backendPort,
     FRONTEND_PORT: answers.frontendPort,
+    HTTPS_PORT: answers.httpsPort,
     DB_NAME: answers.dbName,
     DB_PORT: answers.dbPort,
     REDIS_PORT: answers.redisPort
@@ -266,6 +273,16 @@ function buildFileList(answers) {
     {
       templatePath: "webapi/docker/postgres/1.database.sh",
       destPath: "packages/webapi/docker/postgres/1.database.sh",
+      executable: true
+    },
+    // Nginx HTTPS development proxy
+    {
+      templatePath: "webapi/docker/nginx/nginx.conf",
+      destPath: "packages/webapi/docker/nginx/nginx.conf"
+    },
+    {
+      templatePath: "webapi/docker/nginx/generate-certs.sh",
+      destPath: "packages/webapi/docker/nginx/generate-certs.sh",
       executable: true
     },
     // WebClient package
@@ -356,6 +373,7 @@ Options:
   --description <desc>    Project description
   --port <port>           Backend port (default: 4000)
   --frontend-port <port>  Frontend dev port (default: 5173)
+  --https-port <port>     HTTPS proxy port (default: 8443)
   --db-name <name>        Database name (default: <lowercase-name>)
   --db-port <port>        Database host port (default: 5432)
   --redis-port <port>     Redis host port (default: 6379)
@@ -402,6 +420,9 @@ function parseArgs(args) {
         break;
       case "--frontend-port":
         flags.frontendPort = args[++i];
+        break;
+      case "--https-port":
+        flags.httpsPort = args[++i];
         break;
       case "--db-name":
         flags.dbName = args[++i];
@@ -491,10 +512,14 @@ async function main() {
   });
   printSummary(results);
   if (!flags.dryRun) {
+    const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, "")}.local`;
     console.log("\u2500\u2500 Next Steps \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     console.log("  1. yarn install && yarn ncu");
-    console.log("  2. yarn docker:dev");
-    console.log("  3. yarn dev");
+    console.log("  2. yarn docker:certs");
+    console.log(`  3. Add to /etc/hosts:  127.0.0.1  ${hostname}`);
+    console.log("  4. yarn docker:dev");
+    console.log("  5. yarn dev");
+    console.log(`  6. Open https://${hostname}:${answers.httpsPort}`);
     console.log("");
   }
   if (answers.blueGreen && !flags.dryRun) {

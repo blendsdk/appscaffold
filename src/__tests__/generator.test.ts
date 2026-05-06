@@ -8,6 +8,7 @@ const MINIMAL_ANSWERS: ScaffoldAnswers = {
     description: 'Test application',
     backendPort: '4000',
     frontendPort: '5173',
+    httpsPort: '8443',
     dbName: 'testapp',
     dbPort: '5432',
     redisPort: '6379',
@@ -35,6 +36,7 @@ describe('buildTemplateVars', () => {
         expect(vars.PACKAGE_SCOPE).toBe('@testapp');
         expect(vars.BACKEND_PORT).toBe('4000');
         expect(vars.FRONTEND_PORT).toBe('5173');
+        expect(vars.HTTPS_PORT).toBe('8443');
         expect(vars.DB_NAME).toBe('testapp');
     });
 
@@ -117,5 +119,18 @@ describe('buildFileList', () => {
         const files = buildFileList(MINIMAL_ANSWERS);
         const deploy = files.find((f) => f.destPath === 'deploy-package.sh');
         expect(deploy?.executable).toBe(true);
+    });
+
+    it('always includes nginx proxy files', () => {
+        const files = buildFileList(MINIMAL_ANSWERS);
+        const paths = files.map((f) => f.destPath);
+        expect(paths).toContain('packages/webapi/docker/nginx/nginx.conf');
+        expect(paths).toContain('packages/webapi/docker/nginx/generate-certs.sh');
+    });
+
+    it('marks generate-certs.sh as executable', () => {
+        const files = buildFileList(MINIMAL_ANSWERS);
+        const certs = files.find((f) => f.destPath === 'packages/webapi/docker/nginx/generate-certs.sh');
+        expect(certs?.executable).toBe(true);
     });
 });

@@ -27,15 +27,19 @@ This is a monorepo powered by [Turborepo](https://turbo.build/) and [Yarn Worksp
 # Install dependencies
 yarn install
 
-# Start development databases (PostgreSQL + Redis)
+# Generate self-signed SSL certificates (first time only)
+yarn docker:certs
+
+# Add the dev hostname to /etc/hosts (first time only)
+# 127.0.0.1  dev.{{PROJECT_NAME_LOWER}}.local
+
+# Start development services (PostgreSQL + Redis + HTTPS proxy)
 yarn docker:dev
 
 # Start all packages in development mode
 yarn dev
 
-# Or start individually
-yarn dev:api      # Backend only
-yarn dev:client   # Frontend only
+# Open https://dev.{{PROJECT_NAME_LOWER}}.local:{{HTTPS_PORT}}
 ```
 
 ### Available Scripts
@@ -49,18 +53,51 @@ yarn dev:client   # Frontend only
 | `yarn test` | Run all tests |
 | `yarn typecheck` | Type-check all packages |
 | `yarn clean` | Clean all build outputs |
-| `yarn docker:dev` | Start dev databases |
-| `yarn docker:down` | Stop dev databases |
-| `yarn docker:reset` | Reset dev databases (destroy data) |
+| `yarn docker:certs` | Generate self-signed SSL certificates |
+| `yarn docker:dev` | Start dev services (DB + Redis + HTTPS proxy) |
+| `yarn docker:down` | Stop dev services |
+| `yarn docker:reset` | Reset dev services (destroy data) |
 | `yarn ncu` | Update all dependencies |
 
 ### Development URLs
 
 | Service | URL |
 |---------|-----|
-| Frontend | http://localhost:{{FRONTEND_PORT}} |
-| Backend API | http://localhost:{{BACKEND_PORT}} |
-| Health Check | http://localhost:{{BACKEND_PORT}}/api/health |
+| Application (HTTPS) | https://dev.{{PROJECT_NAME_LOWER}}.local:{{HTTPS_PORT}} |
+| Health Check (HTTPS) | https://dev.{{PROJECT_NAME_LOWER}}.local:{{HTTPS_PORT}}/api/health |
+| Frontend (direct) | http://localhost:{{FRONTEND_PORT}} |
+| Backend API (direct) | http://localhost:{{BACKEND_PORT}} |
+
+### HTTPS Development Proxy
+
+This project includes an nginx reverse proxy that terminates SSL with a self-signed certificate, giving you a production-like HTTPS environment during local development.
+
+**Architecture:**
+
+```
+Browser → https://dev.{{PROJECT_NAME_LOWER}}.local:{{HTTPS_PORT}}
+              │
+      ┌───────┴────────┐
+      │  nginx (Docker) │
+      │  SSL termination│
+      ├─────────────────┤
+      │ /api  → webapi  │  (Node.js on port {{BACKEND_PORT}})
+      │ /*    → vite    │  (Vite dev on port {{FRONTEND_PORT}})
+      └─────────────────┘
+```
+
+**First-time setup:**
+
+1. Generate SSL certificates: `yarn docker:certs`
+2. Add to `/etc/hosts`: `127.0.0.1  dev.{{PROJECT_NAME_LOWER}}.local`
+3. Accept the self-signed certificate in your browser on first visit
+
+**Regenerating certificates:**
+
+```bash
+rm -rf packages/webapi/docker/certs
+yarn docker:certs
+```
 
 ## Deployment
 

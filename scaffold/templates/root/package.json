@@ -20,6 +20,7 @@
         "lint": "turbo run lint",
         "clean": "turbo run clean",
         "typecheck": "turbo run typecheck",
+        "docker:certs": "bash packages/webapi/docker/nginx/generate-certs.sh",
         "docker:dev": "docker compose -f packages/webapi/docker/docker-compose.yml up -d",
         "docker:down": "docker compose -f packages/webapi/docker/docker-compose.yml down",
         "docker:reset": "docker compose -f packages/webapi/docker/docker-compose.yml down -v && yarn docker:dev",

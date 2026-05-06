@@ -13,6 +13,7 @@ const MINIMAL_ANSWERS: ScaffoldAnswers = {
     description: 'Integration test project',
     backendPort: '4000',
     frontendPort: '5173',
+    httpsPort: '8443',
     dbName: 'testapp',
     dbPort: '5432',
     redisPort: '6379',
@@ -117,6 +118,75 @@ describe('integration: generateAllFiles', () => {
         generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
         const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/vite.config.ts'), 'utf-8');
         expect(content).toContain('http://localhost:4000');
+    });
+
+    it('generated vite.config.ts has host: true for nginx proxy access', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/vite.config.ts'), 'utf-8');
+        expect(content).toContain('host: true');
+    });
+
+    it('generates nginx proxy files', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/docker/nginx/nginx.conf'))).toBe(true);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/docker/nginx/generate-certs.sh'))).toBe(true);
+    });
+
+    it('generated nginx.conf has correct ports and hostname', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/docker/nginx/nginx.conf'), 'utf-8');
+        // Upstream ports should match the configured backend and frontend ports
+        expect(content).toContain('host.docker.internal:4000');
+        expect(content).toContain('host.docker.internal:5173');
+        // Server name should use the project name
+        expect(content).toContain('dev.testapp.local');
+        // No unresolved placeholders
+        expect(content).not.toContain('{{');
+    });
+
+    it('generated generate-certs.sh has correct hostname', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/docker/nginx/generate-certs.sh'),
+            'utf-8',
+        );
+        expect(content).toContain('dev.testapp.local');
+        expect(content).toContain('8443');
+        expect(content).not.toContain('{{');
+    });
+
+    it('generated docker-compose.yml has nginx-proxy service', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/docker/docker-compose.yml'),
+            'utf-8',
+        );
+        expect(content).toContain('nginx-proxy');
+        expect(content).toContain('8443:443');
+        expect(content).toContain('host.docker.internal:host-gateway');
+    });
+
+    it('generated root package.json has docker:certs script', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf-8');
+        const parsed = JSON.parse(content);
+        expect(parsed.scripts['docker:certs']).toBeDefined();
+        expect(parsed.scripts['docker:certs']).toContain('generate-certs.sh');
+    });
+
+    it('generated nginx files use custom https port when configured', () => {
+        const answers = { ...MINIMAL_ANSWERS, httpsPort: '9443' };
+        generateAllFiles(answers, { outputDir: tmpDir });
+        const compose = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/docker/docker-compose.yml'),
+            'utf-8',
+        );
+        expect(compose).toContain('9443:443');
+        const certs = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/docker/nginx/generate-certs.sh'),
+            'utf-8',
+        );
+        expect(certs).toContain('9443');
     });
 
     it('placeholder replacement works end-to-end for scope', () => {

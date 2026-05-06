@@ -62,6 +62,10 @@ export async function runInteractivePrompts(): Promise<ScaffoldAnswers> {
         const frontendPort = await ask(rl, 'Frontend dev port', DEFAULTS.frontendPort);
 
         console.log('');
+        console.log('── HTTPS Dev Proxy ───────────────────────────');
+        const httpsPort = await ask(rl, 'HTTPS proxy port', DEFAULTS.httpsPort);
+
+        console.log('');
         console.log('── Features ──────────────────────────────────');
         const oidc = await confirm(rl, 'Include OIDC authentication?', true);
         const i18n = await confirm(rl, 'Include i18n (internationalization)?', true);
@@ -80,6 +84,7 @@ export async function runInteractivePrompts(): Promise<ScaffoldAnswers> {
             description,
             backendPort,
             frontendPort,
+            httpsPort,
             dbName,
             dbPort,
             redisPort,
@@ -105,6 +110,7 @@ export function answersFromFlags(flags: ScaffoldFlags): ScaffoldAnswers {
         description: flags.description ?? '',
         backendPort: flags.port ?? DEFAULTS.backendPort,
         frontendPort: flags.frontendPort ?? DEFAULTS.frontendPort,
+        httpsPort: flags.httpsPort ?? DEFAULTS.httpsPort,
         dbName: flags.dbName ?? name.toLowerCase().replace(/[^a-z0-9_]/g, ''),
         dbPort: flags.dbPort ?? DEFAULTS.dbPort,
         redisPort: flags.redisPort ?? DEFAULTS.redisPort,
