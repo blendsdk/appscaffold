@@ -114,6 +114,31 @@ describe('integration: generateAllFiles', () => {
         expect(content).toContain('4000');
     });
 
+    it('generated webapi index.ts includes pino logger plugin', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(content).toContain("import { pinoLoggerPlugin } from 'blendsdk/webafx-pino'");
+        expect(content).toContain('pinoLoggerPlugin(');
+        expect(content).toContain("serviceName: 'testapp'");
+    });
+
+    it('generated webapi package.json includes pino-pretty devDependency', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/package.json'), 'utf-8');
+        const parsed = JSON.parse(content);
+        expect(parsed.devDependencies['pino-pretty']).toBeDefined();
+    });
+
+    it('generated health controller uses req.log for structured logging', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/src/controllers/health-controller.ts'),
+            'utf-8',
+        );
+        expect(content).toContain('req.log');
+        expect(content).toContain("log.info('Health check completed'");
+    });
+
     it('generated vite.config.ts has correct proxy target', () => {
         generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
         const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/vite.config.ts'), 'utf-8');

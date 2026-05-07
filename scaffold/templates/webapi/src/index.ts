@@ -2,6 +2,7 @@ import { WebApplication } from 'blendsdk/webafx';
 import type { ServiceContainer, ApplicationSettings } from 'blendsdk/webafx';
 import { PostgreSQLDatabase } from 'blendsdk/postgresql';
 import { redisCachePlugin } from 'blendsdk/webafx-cache';
+import { pinoLoggerPlugin } from 'blendsdk/webafx-pino';
 {{WEBAPI_PLUGIN_IMPORTS}}
 import { HealthController } from './controllers/health-controller.js';
 
@@ -29,6 +30,13 @@ app.registerService({
     },
     dispose: async (db: unknown) => await (db as PostgreSQLDatabase).disconnect(),
 });
+
+// Pino structured logger (priority 20 — installs before cache and other plugins)
+app.use(pinoLoggerPlugin({
+    level: process.env.LOG_LEVEL ?? 'info',
+    pretty: process.env.NODE_ENV !== 'production',
+    serviceName: '{{PROJECT_NAME_LOWER}}',
+}));
 
 // Redis cache plugin
 app.use(redisCachePlugin({

@@ -11,6 +11,7 @@ export class HealthController extends BaseController {
     }
 
     async check(req: Request, res: Response) {
+        const log = req.log!;
         const checks: Record<string, string> = {};
 
         // Database check
@@ -20,6 +21,7 @@ export class HealthController extends BaseController {
             checks.database = 'ok';
         } catch {
             checks.database = 'error';
+            await log.error('Database health check failed');
         }
 
         // Cache check
@@ -29,10 +31,16 @@ export class HealthController extends BaseController {
             checks.cache = 'ok';
         } catch {
             checks.cache = 'error';
+            await log.error('Cache health check failed');
         }
 
         const allOk = Object.values(checks).every((v) => v === 'ok');
         const status = allOk ? 200 : 503;
+
+        await log.info('Health check completed', {
+            status: allOk ? 'ok' : 'degraded',
+            checks,
+        });
 
         res.status(status).json({
             status: allOk ? 'ok' : 'degraded',
