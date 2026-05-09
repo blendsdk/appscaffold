@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 // src/index.ts
+import * as path5 from "node:path";
+import * as fs3 from "node:fs";
 import { execSync } from "node:child_process";
 
 // src/prompts.ts
@@ -507,9 +509,19 @@ async function main() {
   console.log("\u{1F680} BlendSDK App Scaffold Generator");
   console.log("\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
   const answers = flags.name ? answersFromFlags(flags) : await runInteractivePrompts();
-  const outputDir = process.cwd();
+  const projectDir = answers.name.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const outputDir = path5.join(process.cwd(), projectDir);
+  if (!flags.dryRun) {
+    if (fs3.existsSync(outputDir) && fs3.readdirSync(outputDir).length > 0 && !flags.force) {
+      console.log("");
+      console.log(`  \u274C Directory '${projectDir}' already exists and is not empty.`);
+      console.log("     Use --force to overwrite, or choose a different name.");
+      process.exit(1);
+    }
+    fs3.mkdirSync(outputDir, { recursive: true });
+  }
   console.log("");
-  console.log("\u{1F4C1} Generating project files...");
+  console.log(`\u{1F4C1} Generating project in ./${projectDir}/...`);
   const results = generateAllFiles(answers, {
     outputDir,
     force: flags.force,
@@ -519,6 +531,7 @@ async function main() {
   if (!flags.dryRun) {
     const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, "")}.local`;
     console.log("\u2500\u2500 Next Steps \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
+    console.log(`  0. cd ${projectDir}`);
     console.log("  1. yarn install && yarn ncu");
     console.log("  2. yarn docker:setup    (certs + /etc/hosts + Docker check)");
     console.log("  3. yarn docker:dev      (start PostgreSQL + Redis + HTTPS proxy)");

@@ -1,4 +1,5 @@
 import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { execSync } from 'node:child_process';
 import type { ScaffoldFlags, FileResult } from './types.js';
 import { runInteractivePrompts, answersFromFlags } from './prompts.js';
@@ -159,10 +160,22 @@ async function main(): Promise<void> {
     // Determine interactive vs non-interactive mode
     const answers = flags.name ? answersFromFlags(flags) : await runInteractivePrompts();
 
-    const outputDir = process.cwd();
+    // Create a project subfolder based on the project name
+    const projectDir = answers.name.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const outputDir = path.join(process.cwd(), projectDir);
+
+    if (!flags.dryRun) {
+        if (fs.existsSync(outputDir) && fs.readdirSync(outputDir).length > 0 && !flags.force) {
+            console.log('');
+            console.log(`  ❌ Directory '${projectDir}' already exists and is not empty.`);
+            console.log('     Use --force to overwrite, or choose a different name.');
+            process.exit(1);
+        }
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
 
     console.log('');
-    console.log('📁 Generating project files...');
+    console.log(`📁 Generating project in ./${projectDir}/...`);
 
     const results = generateAllFiles(answers, {
         outputDir,
@@ -175,6 +188,7 @@ async function main(): Promise<void> {
     if (!flags.dryRun) {
         const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, '')}.local`;
         console.log('── Next Steps ────────────────────────────────');
+        console.log(`  0. cd ${projectDir}`);
         console.log('  1. yarn install && yarn ncu');
         console.log('  2. yarn docker:setup    (certs + /etc/hosts + Docker check)');
         console.log('  3. yarn docker:dev      (start PostgreSQL + Redis + HTTPS proxy)');
