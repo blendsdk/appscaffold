@@ -176,11 +176,13 @@ async function main(): Promise<void> {
         const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, '')}.local`;
         console.log('── Next Steps ────────────────────────────────');
         console.log('  1. yarn install && yarn ncu');
-        console.log('  2. yarn docker:certs');
-        console.log(`  3. Add to /etc/hosts:  127.0.0.1  ${hostname}`);
-        console.log('  4. yarn docker:dev');
-        console.log('  5. yarn dev');
-        console.log(`  6. Open https://${hostname}:${answers.httpsPort}`);
+        console.log('  2. yarn docker:setup    (certs + /etc/hosts + Docker check)');
+        console.log('  3. yarn docker:dev      (start PostgreSQL + Redis + HTTPS proxy)');
+        console.log('  4. yarn dev             (start all dev servers)');
+        console.log(`  5. Open https://${hostname}:${answers.httpsPort}`);
+        console.log('');
+        console.log('  💡 Install mkcert before step 2 for browser-trusted certificates:');
+        console.log('     brew install mkcert (macOS) | apt install mkcert (Linux)');
         console.log('');
     }
 

@@ -199,6 +199,25 @@ describe('integration: generateAllFiles', () => {
         expect(parsed.scripts['docker:certs']).toContain('generate-certs.sh');
     });
 
+    it('generated root package.json has docker:setup script', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const content = fs.readFileSync(path.join(tmpDir, 'package.json'), 'utf-8');
+        const parsed = JSON.parse(content);
+        expect(parsed.scripts['docker:setup']).toBeDefined();
+        expect(parsed.scripts['docker:setup']).toContain('setup-dev.sh');
+    });
+
+    it('generates setup-dev.sh with correct hostname and port', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+        const filePath = path.join(tmpDir, 'packages/webapi/docker/setup-dev.sh');
+        expect(fs.existsSync(filePath)).toBe(true);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        expect(content).toContain('dev.testapp.local');
+        expect(content).toContain('8443');
+        expect(content).toContain('mkcert');
+        expect(content).not.toContain('{{');
+    });
+
     it('generated nginx files use custom https port when configured', () => {
         const answers = { ...MINIMAL_ANSWERS, httpsPort: '9443' };
         generateAllFiles(answers, { outputDir: tmpDir });

@@ -285,6 +285,11 @@ function buildFileList(answers) {
       destPath: "packages/webapi/docker/nginx/generate-certs.sh",
       executable: true
     },
+    {
+      templatePath: "webapi/docker/setup-dev.sh",
+      destPath: "packages/webapi/docker/setup-dev.sh",
+      executable: true
+    },
     // WebClient package
     { templatePath: "webclient/package.json", destPath: "packages/webclient/package.json" },
     { templatePath: "webclient/tsconfig.json", destPath: "packages/webclient/tsconfig.json" },
@@ -515,11 +520,13 @@ async function main() {
     const hostname = `dev.${answers.name.toLowerCase().replace(/[^a-z0-9-]/g, "")}.local`;
     console.log("\u2500\u2500 Next Steps \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     console.log("  1. yarn install && yarn ncu");
-    console.log("  2. yarn docker:certs");
-    console.log(`  3. Add to /etc/hosts:  127.0.0.1  ${hostname}`);
-    console.log("  4. yarn docker:dev");
-    console.log("  5. yarn dev");
-    console.log(`  6. Open https://${hostname}:${answers.httpsPort}`);
+    console.log("  2. yarn docker:setup    (certs + /etc/hosts + Docker check)");
+    console.log("  3. yarn docker:dev      (start PostgreSQL + Redis + HTTPS proxy)");
+    console.log("  4. yarn dev             (start all dev servers)");
+    console.log(`  5. Open https://${hostname}:${answers.httpsPort}`);
+    console.log("");
+    console.log("  \u{1F4A1} Install mkcert before step 2 for browser-trusted certificates:");
+    console.log("     brew install mkcert (macOS) | apt install mkcert (Linux)");
     console.log("");
   }
   if (answers.blueGreen && !flags.dryRun) {

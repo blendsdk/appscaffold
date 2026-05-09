@@ -126,6 +126,11 @@ export function buildFileList(answers: ScaffoldAnswers): FileEntry[] {
             destPath: 'packages/webapi/docker/nginx/generate-certs.sh',
             executable: true,
         },
+        {
+            templatePath: 'webapi/docker/setup-dev.sh',
+            destPath: 'packages/webapi/docker/setup-dev.sh',
+            executable: true,
+        },
 
         // WebClient package
         { templatePath: 'webclient/package.json', destPath: 'packages/webclient/package.json' },

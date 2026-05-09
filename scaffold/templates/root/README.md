@@ -27,11 +27,8 @@ This is a monorepo powered by [Turborepo](https://turbo.build/) and [Yarn Worksp
 # Install dependencies
 yarn install
 
-# Generate self-signed SSL certificates (first time only)
-yarn docker:certs
-
-# Add the dev hostname to /etc/hosts (first time only)
-# 127.0.0.1  dev.{{PROJECT_NAME_LOWER}}.local
+# One-time dev environment setup (certs + /etc/hosts + Docker check)
+yarn docker:setup
 
 # Start development services (PostgreSQL + Redis + HTTPS proxy)
 yarn docker:dev
@@ -53,7 +50,8 @@ yarn dev
 | `yarn test` | Run all tests |
 | `yarn typecheck` | Type-check all packages |
 | `yarn clean` | Clean all build outputs |
-| `yarn docker:certs` | Generate self-signed SSL certificates |
+| `yarn docker:setup` | One-time dev environment setup (certs + hosts) |
+| `yarn docker:certs` | Regenerate SSL certificates only |
 | `yarn docker:dev` | Start dev services (DB + Redis + HTTPS proxy) |
 | `yarn docker:down` | Stop dev services |
 | `yarn docker:reset` | Reset dev services (destroy data) |
@@ -70,7 +68,8 @@ yarn dev
 
 ### HTTPS Development Proxy
 
-This project includes an nginx reverse proxy that terminates SSL with a self-signed certificate, giving you a production-like HTTPS environment during local development.
+This project includes an nginx reverse proxy that terminates SSL, giving you a
+production-like HTTPS environment during local development.
 
 **Architecture:**
 
@@ -88,9 +87,21 @@ Browser → https://dev.{{PROJECT_NAME_LOWER}}.local:{{HTTPS_PORT}}
 
 **First-time setup:**
 
-1. Generate SSL certificates: `yarn docker:certs`
-2. Add to `/etc/hosts`: `127.0.0.1  dev.{{PROJECT_NAME_LOWER}}.local`
-3. Accept the self-signed certificate in your browser on first visit
+Run `yarn docker:setup` — this handles certificates, `/etc/hosts`, and validates
+Docker in a single command. See [Setup](#setup) above.
+
+**Browser-trusted certificates (optional):**
+
+Install [mkcert](https://github.com/FiloSottile/mkcert) before running
+`yarn docker:setup` to get browser-trusted certificates with no SSL warnings:
+
+```bash
+brew install mkcert    # macOS
+apt install mkcert     # Ubuntu/Debian
+```
+
+If mkcert is not installed, `docker:setup` falls back to openssl self-signed
+certificates (you'll need to accept the certificate in your browser once).
 
 **Regenerating certificates:**
 
