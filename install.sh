@@ -48,17 +48,25 @@ echo "🚀 Running scaffold generator..."
 echo ""
 node "$SCAFFOLD_DIR/scaffold/scaffold.js" "$@" < /dev/tty
 
+# Detect project directory created by the scaffold
+PROJECT_DIR=""
+if [ -f ".scaffold-output" ]; then
+  PROJECT_DIR=$(cat .scaffold-output)
+  rm -f .scaffold-output
+fi
+
 # Post-scaffold: ask user to run yarn install && yarn ncu (Decision per AR #2, AR #3)
-if command -v yarn &>/dev/null; then
+if command -v yarn &>/dev/null && [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
   echo ""
-  read -r -p "Run 'yarn install && yarn ncu' now? [Y/n] " response < /dev/tty
+  read -r -p "Run 'yarn install && yarn ncu' in ./${PROJECT_DIR}/? [Y/n] " response < /dev/tty
   response=${response:-Y}
   if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
     echo ""
-    echo "📦 Running yarn install && yarn ncu..."
+    echo "📦 Running yarn install && yarn ncu in ./${PROJECT_DIR}/..."
+    cd "$PROJECT_DIR"
     yarn install && yarn ncu
   else
     echo ""
-    echo "Skipped. Run manually: yarn install && yarn ncu"
+    echo "Skipped. Run manually: cd ${PROJECT_DIR} && yarn install && yarn ncu"
   fi
 fi

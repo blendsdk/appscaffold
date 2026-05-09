@@ -200,6 +200,12 @@ async function main(): Promise<void> {
         console.log('');
     }
 
+    // Write project directory marker for install.sh to pick up
+    if (!flags.dryRun) {
+        const markerPath = path.join(process.cwd(), '.scaffold-output');
+        fs.writeFileSync(markerPath, projectDir, 'utf-8');
+    }
+
     // Blue-green deployment (post-scaffold step)
     if (answers.blueGreen && !flags.dryRun) {
         console.log('── Blue-Green Deployment ──────────────────────');

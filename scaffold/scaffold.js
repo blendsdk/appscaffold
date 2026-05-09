@@ -542,6 +542,10 @@ async function main() {
     console.log("     brew install mkcert (macOS) | apt install mkcert (Linux)");
     console.log("");
   }
+  if (!flags.dryRun) {
+    const markerPath = path5.join(process.cwd(), ".scaffold-output");
+    fs3.writeFileSync(markerPath, projectDir, "utf-8");
+  }
   if (answers.blueGreen && !flags.dryRun) {
     console.log("\u2500\u2500 Blue-Green Deployment \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     console.log("  Installing blue-green deployment scaffold...");
