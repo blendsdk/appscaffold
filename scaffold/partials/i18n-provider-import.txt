@@ -1,0 +1,3 @@
+
+import { I18nProvider } from 'blendsdk/react';
+import { fetchTranslations } from './system/i18n/loader.js';

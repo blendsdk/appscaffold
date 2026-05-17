@@ -73,6 +73,7 @@ async function runInteractivePrompts() {
     console.log("\u2500\u2500 Features \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
     const oidc = await confirm(rl, "Include OIDC authentication?", true);
     const i18n = await confirm(rl, "Include i18n (internationalization)?", true);
+    const i18nDb = i18n ? await confirm(rl, "Include database translations?", false) : false;
     const mailer = await confirm(rl, "Include email service (mailer)?", true);
     const fileUpload = await confirm(rl, "Include file upload support?", false);
     console.log("");
@@ -91,6 +92,7 @@ async function runInteractivePrompts() {
       redisPort,
       oidc,
       i18n,
+      i18nDb,
       mailer,
       fileUpload,
       blueGreen
@@ -114,6 +116,7 @@ function answersFromFlags(flags) {
     redisPort: flags.redisPort ?? DEFAULTS.redisPort,
     oidc: flags.oidc ?? true,
     i18n: flags.i18n ?? true,
+    i18nDb: flags.i18nDb ?? false,
     mailer: flags.mailer ?? true,
     fileUpload: flags.fileUpload ?? false,
     blueGreen: flags.blueGreen ?? true
@@ -208,6 +211,9 @@ function buildTemplateVars(answers) {
   }
   if (answers.i18n) {
     vars.WEBAPI_PLUGIN_IMPORTS += readPartial("i18n-plugin-import.txt");
+    if (answers.i18nDb) {
+      vars.WEBAPI_PLUGIN_IMPORTS += "\nimport { postgresqlSource } from 'blendsdk/webafx-i18n';";
+    }
   }
   if (answers.mailer) {
     vars.WEBAPI_PLUGIN_IMPORTS += readPartial("mailer-plugin-import.txt");
@@ -219,6 +225,10 @@ function buildTemplateVars(answers) {
   if (answers.i18n) {
     vars.WEBAPI_PLUGIN_REGISTRATIONS += readPartial("i18n-plugin-registration.txt");
   }
+  vars.I18N_DB_SOURCE = "";
+  if (answers.i18n && answers.i18nDb) {
+    vars.I18N_DB_SOURCE = readPartial("i18n-db-source.txt");
+  }
   if (answers.mailer) {
     vars.WEBAPI_PLUGIN_REGISTRATIONS += readPartial("mailer-plugin-registration.txt");
   }
@@ -229,6 +239,35 @@ function buildTemplateVars(answers) {
   vars.WEBAPI_DEVDEPS_PARTIAL = "";
   if (answers.mailer) {
     vars.WEBAPI_DEVDEPS_PARTIAL += readPartial("devdeps-mailer.txt");
+  }
+  vars.I18N_CONTROLLER_IMPORT = "";
+  vars.I18N_CONTROLLER_REGISTRATION = "";
+  if (answers.i18n) {
+    vars.I18N_CONTROLLER_IMPORT = readPartial("i18n-controller-import.txt");
+    vars.I18N_CONTROLLER_REGISTRATION = readPartial("i18n-controller-registration.txt");
+  }
+  vars.GLOBALLOADER_IMPORT = readPartial("globalloader-import.txt");
+  vars.GLOBALLOADER_OPEN = readPartial("globalloader-open.txt");
+  vars.GLOBALLOADER_CLOSE = readPartial("globalloader-close.txt");
+  vars.I18N_PROVIDER_IMPORT = "";
+  vars.I18N_PROVIDER_OPEN = "";
+  vars.I18N_PROVIDER_CLOSE = "";
+  if (answers.i18n) {
+    vars.I18N_PROVIDER_IMPORT = readPartial("i18n-provider-import.txt");
+    vars.I18N_PROVIDER_OPEN = readPartial("i18n-provider-open.txt");
+    vars.I18N_PROVIDER_CLOSE = readPartial("i18n-provider-close.txt");
+  }
+  vars.I18N_HOME_IMPORT = "";
+  vars.I18N_HOME_HOOK = "";
+  vars.I18N_HOME_USAGE = "";
+  if (answers.i18n) {
+    vars.I18N_HOME_IMPORT = readPartial("i18n-home-import.txt");
+    vars.I18N_HOME_HOOK = readPartial("i18n-home-hook.txt");
+    vars.I18N_HOME_USAGE = readPartial("i18n-home-usage.txt");
+  }
+  vars.I18N_SYSTEM_EXPORT = "";
+  if (answers.i18n) {
+    vars.I18N_SYSTEM_EXPORT = readPartial("i18n-system-export.txt");
   }
   return vars;
 }
@@ -324,6 +363,28 @@ function buildFileList(answers) {
       destPath: "packages/webapi/src/plugins/oidc-auth-plugin.ts"
     });
   }
+  if (answers.i18n) {
+    files.push(
+      {
+        templatePath: "webapi/src/controllers/translations-controller.ts",
+        destPath: "packages/webapi/src/controllers/translations-controller.ts"
+      },
+      {
+        templatePath: "webapi/resources/i18n/en.json",
+        destPath: "packages/webapi/resources/i18n/en.json"
+      },
+      {
+        templatePath: "webclient/src/system/i18n/loader.ts",
+        destPath: "packages/webclient/src/system/i18n/loader.ts"
+      }
+    );
+  }
+  if (answers.i18n && answers.i18nDb) {
+    files.push({
+      templatePath: "codegen/resources/database/001-translations.sql",
+      destPath: "packages/codegen/resources/database/001-translations.sql"
+    });
+  }
   const gitkeepDirs = [
     "packages/webapi/src/plugins",
     "packages/webapi/src/services",
@@ -388,6 +449,8 @@ Options:
   --no-oidc               Exclude OIDC authentication
   --i18n                  Include i18n support (default: true)
   --no-i18n               Exclude i18n support
+  --i18n-db               Include database translations (default: false)
+  --no-i18n-db            Exclude database translations
   --mailer                Include email service (default: true)
   --no-mailer             Exclude email service
   --file-upload           Include file upload support
@@ -451,6 +514,12 @@ function parseArgs(args) {
         break;
       case "--no-i18n":
         flags.i18n = false;
+        break;
+      case "--i18n-db":
+        flags.i18nDb = true;
+        break;
+      case "--no-i18n-db":
+        flags.i18nDb = false;
         break;
       case "--mailer":
         flags.mailer = true;

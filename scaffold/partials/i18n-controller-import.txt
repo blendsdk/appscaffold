@@ -1,0 +1,2 @@
+
+import { TranslationsController } from './controllers/translations-controller.js';

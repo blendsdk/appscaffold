@@ -34,6 +34,10 @@ export function buildTemplateVars(answers: ScaffoldAnswers): TemplateVars {
     }
     if (answers.i18n) {
         vars.WEBAPI_PLUGIN_IMPORTS += readPartial('i18n-plugin-import.txt');
+        // Add postgresqlSource import when DB translations enabled
+        if (answers.i18nDb) {
+            vars.WEBAPI_PLUGIN_IMPORTS += "\nimport { postgresqlSource } from 'blendsdk/webafx-i18n';";
+        }
     }
     if (answers.mailer) {
         vars.WEBAPI_PLUGIN_IMPORTS += readPartial('mailer-plugin-import.txt');
@@ -46,6 +50,11 @@ export function buildTemplateVars(answers: ScaffoldAnswers): TemplateVars {
     }
     if (answers.i18n) {
         vars.WEBAPI_PLUGIN_REGISTRATIONS += readPartial('i18n-plugin-registration.txt');
+    }
+    // I18n DB source partial — injected inside the plugin registration partial
+    vars.I18N_DB_SOURCE = '';
+    if (answers.i18n && answers.i18nDb) {
+        vars.I18N_DB_SOURCE = readPartial('i18n-db-source.txt');
     }
     if (answers.mailer) {
         vars.WEBAPI_PLUGIN_REGISTRATIONS += readPartial('mailer-plugin-registration.txt');
@@ -61,6 +70,45 @@ export function buildTemplateVars(answers: ScaffoldAnswers): TemplateVars {
     vars.WEBAPI_DEVDEPS_PARTIAL = '';
     if (answers.mailer) {
         vars.WEBAPI_DEVDEPS_PARTIAL += readPartial('devdeps-mailer.txt');
+    }
+
+    // I18n controller partials — only when i18n is enabled
+    vars.I18N_CONTROLLER_IMPORT = '';
+    vars.I18N_CONTROLLER_REGISTRATION = '';
+    if (answers.i18n) {
+        vars.I18N_CONTROLLER_IMPORT = readPartial('i18n-controller-import.txt');
+        vars.I18N_CONTROLLER_REGISTRATION = readPartial('i18n-controller-registration.txt');
+    }
+
+    // GlobalLoaderProvider partials — always included
+    vars.GLOBALLOADER_IMPORT = readPartial('globalloader-import.txt');
+    vars.GLOBALLOADER_OPEN = readPartial('globalloader-open.txt');
+    vars.GLOBALLOADER_CLOSE = readPartial('globalloader-close.txt');
+
+    // I18nProvider partials — only when i18n is enabled
+    vars.I18N_PROVIDER_IMPORT = '';
+    vars.I18N_PROVIDER_OPEN = '';
+    vars.I18N_PROVIDER_CLOSE = '';
+    if (answers.i18n) {
+        vars.I18N_PROVIDER_IMPORT = readPartial('i18n-provider-import.txt');
+        vars.I18N_PROVIDER_OPEN = readPartial('i18n-provider-open.txt');
+        vars.I18N_PROVIDER_CLOSE = readPartial('i18n-provider-close.txt');
+    }
+
+    // I18n Home page partials — only when i18n is enabled
+    vars.I18N_HOME_IMPORT = '';
+    vars.I18N_HOME_HOOK = '';
+    vars.I18N_HOME_USAGE = '';
+    if (answers.i18n) {
+        vars.I18N_HOME_IMPORT = readPartial('i18n-home-import.txt');
+        vars.I18N_HOME_HOOK = readPartial('i18n-home-hook.txt');
+        vars.I18N_HOME_USAGE = readPartial('i18n-home-usage.txt');
+    }
+
+    // I18n system export partial — only when i18n is enabled
+    vars.I18N_SYSTEM_EXPORT = '';
+    if (answers.i18n) {
+        vars.I18N_SYSTEM_EXPORT = readPartial('i18n-system-export.txt');
     }
 
     return vars;
@@ -164,6 +212,32 @@ export function buildFileList(answers: ScaffoldAnswers): FileEntry[] {
         files.push({
             templatePath: 'webapi/src/plugins/oidc-auth-plugin.ts',
             destPath: 'packages/webapi/src/plugins/oidc-auth-plugin.ts',
+        });
+    }
+
+    // Conditional: i18n files — translations controller, en.json, and frontend loader
+    if (answers.i18n) {
+        files.push(
+            {
+                templatePath: 'webapi/src/controllers/translations-controller.ts',
+                destPath: 'packages/webapi/src/controllers/translations-controller.ts',
+            },
+            {
+                templatePath: 'webapi/resources/i18n/en.json',
+                destPath: 'packages/webapi/resources/i18n/en.json',
+            },
+            {
+                templatePath: 'webclient/src/system/i18n/loader.ts',
+                destPath: 'packages/webclient/src/system/i18n/loader.ts',
+            },
+        );
+    }
+
+    // Conditional: i18n DB migration — only when database translations enabled
+    if (answers.i18n && answers.i18nDb) {
+        files.push({
+            templatePath: 'codegen/resources/database/001-translations.sql',
+            destPath: 'packages/codegen/resources/database/001-translations.sql',
         });
     }
 

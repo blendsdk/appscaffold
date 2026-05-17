@@ -1,0 +1,2 @@
+
+export { fetchTranslations } from './i18n/loader.js';

@@ -25,6 +25,8 @@ Options:
   --no-oidc               Exclude OIDC authentication
   --i18n                  Include i18n support (default: true)
   --no-i18n               Exclude i18n support
+  --i18n-db               Include database translations (default: false)
+  --no-i18n-db            Exclude database translations
   --mailer                Include email service (default: true)
   --no-mailer             Exclude email service
   --file-upload           Include file upload support
@@ -91,6 +93,12 @@ function parseArgs(args: string[]): ScaffoldFlags {
                 break;
             case '--no-i18n':
                 flags.i18n = false;
+                break;
+            case '--i18n-db':
+                flags.i18nDb = true;
+                break;
+            case '--no-i18n-db':
+                flags.i18nDb = false;
                 break;
             case '--mailer':
                 flags.mailer = true;

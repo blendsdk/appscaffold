@@ -11,6 +11,7 @@ export interface ScaffoldAnswers {
     redisPort: string;
     oidc: boolean;
     i18n: boolean;
+    i18nDb: boolean;
     mailer: boolean;
     fileUpload: boolean;
     blueGreen: boolean;
@@ -29,6 +30,7 @@ export interface ScaffoldFlags {
     redisPort?: string;
     oidc?: boolean;
     i18n?: boolean;
+    i18nDb?: boolean;
     mailer?: boolean;
     fileUpload?: boolean;
     blueGreen?: boolean;

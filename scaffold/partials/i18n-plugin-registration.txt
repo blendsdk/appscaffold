@@ -4,5 +4,5 @@ app.use(createI18nPlugin({
     defaultLocale: 'en',
     sources: [
         jsonFileSource({ paths: ['./resources/i18n/*.json'] }),
-    ],
+{{I18N_DB_SOURCE}}    ],
 }));

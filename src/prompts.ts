@@ -69,6 +69,7 @@ export async function runInteractivePrompts(): Promise<ScaffoldAnswers> {
         console.log('── Features ──────────────────────────────────');
         const oidc = await confirm(rl, 'Include OIDC authentication?', true);
         const i18n = await confirm(rl, 'Include i18n (internationalization)?', true);
+        const i18nDb = i18n ? await confirm(rl, 'Include database translations?', false) : false;
         const mailer = await confirm(rl, 'Include email service (mailer)?', true);
         const fileUpload = await confirm(rl, 'Include file upload support?', false);
 
@@ -90,6 +91,7 @@ export async function runInteractivePrompts(): Promise<ScaffoldAnswers> {
             redisPort,
             oidc,
             i18n,
+            i18nDb,
             mailer,
             fileUpload,
             blueGreen,
@@ -116,6 +118,7 @@ export function answersFromFlags(flags: ScaffoldFlags): ScaffoldAnswers {
         redisPort: flags.redisPort ?? DEFAULTS.redisPort,
         oidc: flags.oidc ?? true,
         i18n: flags.i18n ?? true,
+        i18nDb: flags.i18nDb ?? false,
         mailer: flags.mailer ?? true,
         fileUpload: flags.fileUpload ?? false,
         blueGreen: flags.blueGreen ?? true,

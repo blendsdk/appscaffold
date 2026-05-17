@@ -5,6 +5,7 @@ import { redisCachePlugin } from 'blendsdk/webafx-cache';
 import { pinoLoggerPlugin } from 'blendsdk/webafx-pino';
 {{WEBAPI_PLUGIN_IMPORTS}}
 import { HealthController } from './controllers/health-controller.js';
+{{I18N_CONTROLLER_IMPORT}}
 
 const app = new WebApplication({
     PORT: {{BACKEND_PORT}},
@@ -51,5 +52,6 @@ app.use(redisCachePlugin({
 
 // Controllers
 app.registerController('/api/health', HealthController);
+{{I18N_CONTROLLER_REGISTRATION}}
 
 const shutdown = await app.start();

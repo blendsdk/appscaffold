@@ -1,0 +1,9 @@
+{
+    "app.title": "{{PROJECT_NAME}}",
+    "app.welcome": "Welcome, {name}!",
+    "common.loading": "Loading...",
+    "common.error": "An error occurred. Please try again.",
+    "items.count_zero": "No items",
+    "items.count_one": "{count} item",
+    "items.count_other": "{count} items"
+}

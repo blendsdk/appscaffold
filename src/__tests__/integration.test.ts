@@ -19,6 +19,7 @@ const MINIMAL_ANSWERS: ScaffoldAnswers = {
     redisPort: '6379',
     oidc: false,
     i18n: false,
+    i18nDb: false,
     mailer: false,
     fileUpload: false,
     blueGreen: false,
@@ -28,6 +29,7 @@ const FULL_ANSWERS: ScaffoldAnswers = {
     ...MINIMAL_ANSWERS,
     oidc: true,
     i18n: true,
+    i18nDb: false,
     mailer: true,
     fileUpload: true,
 };
@@ -238,5 +240,211 @@ describe('integration: generateAllFiles', () => {
         const content = fs.readFileSync(path.join(tmpDir, 'packages/shared/package.json'), 'utf-8');
         expect(content).toContain('@testapp/shared');
         expect(content).not.toContain('{{PACKAGE_SCOPE}}');
+    });
+});
+
+describe('integration: i18n feature', () => {
+    it('generates i18n files when i18n enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        // Backend i18n files
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/src/controllers/translations-controller.ts'))).toBe(true);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/resources/i18n/en.json'))).toBe(true);
+
+        // Frontend i18n files
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webclient/src/system/i18n/loader.ts'))).toBe(true);
+    });
+
+    it('does not generate i18n files when i18n disabled', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/src/controllers/translations-controller.ts'))).toBe(false);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/resources/i18n/en.json'))).toBe(false);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webclient/src/system/i18n/loader.ts'))).toBe(false);
+    });
+
+    it('generated en.json is valid JSON with expected keys', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/resources/i18n/en.json'), 'utf-8');
+        const parsed = JSON.parse(content);
+        expect(parsed['app.title']).toBe('TestApp');
+        expect(parsed['app.welcome']).toContain('{name}');
+        expect(parsed['items.count_zero']).toBeDefined();
+        expect(parsed['items.count_one']).toBeDefined();
+        expect(parsed['items.count_other']).toBeDefined();
+    });
+
+    it('generated translations controller has all three endpoints', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(
+            path.join(tmpDir, 'packages/webapi/src/controllers/translations-controller.ts'),
+            'utf-8',
+        );
+        expect(content).toContain('getTranslations');
+        expect(content).toContain('getGreeting');
+        expect(content).toContain('clearCache');
+    });
+
+    it('generated frontend loader fetches from API', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(
+            path.join(tmpDir, 'packages/webclient/src/system/i18n/loader.ts'),
+            'utf-8',
+        );
+        expect(content).toContain('/api/translations/');
+        expect(content).toContain('fetchTranslations');
+    });
+
+    it('generated webapi index.ts includes i18n controller when enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(content).toContain('TranslationsController');
+        expect(content).toContain('createI18nPlugin');
+    });
+
+    it('generated webapi index.ts has no i18n references when disabled', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(content).not.toContain('TranslationsController');
+        expect(content).not.toContain('createI18nPlugin');
+    });
+
+    it('generated main.tsx always includes GlobalLoaderProvider', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/main.tsx'), 'utf-8');
+        expect(content).toContain('GlobalLoaderProvider');
+    });
+
+    it('generated main.tsx includes I18nProvider when i18n enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/main.tsx'), 'utf-8');
+        expect(content).toContain('I18nProvider');
+        expect(content).toContain('fetchTranslations');
+    });
+
+    it('generated main.tsx does not include I18nProvider when i18n disabled', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/main.tsx'), 'utf-8');
+        expect(content).not.toContain('I18nProvider');
+    });
+
+    it('generated Home.tsx includes translation usage when i18n enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/pages/Home.tsx'), 'utf-8');
+        expect(content).toContain('useTranslations');
+        expect(content).toContain("t('app.welcome'");
+        expect(content).toContain("t('items.count'");
+    });
+
+    it('generated Home.tsx has no translation usage when i18n disabled', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/pages/Home.tsx'), 'utf-8');
+        expect(content).not.toContain('useTranslations');
+    });
+
+    it('generated webclient package.json always has blendsdk', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/package.json'), 'utf-8');
+        const parsed = JSON.parse(content);
+        expect(parsed.dependencies.blendsdk).toBeDefined();
+    });
+
+    it('generated system/index.ts exports fetchTranslations when i18n enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/system/index.ts'), 'utf-8');
+        expect(content).toContain('fetchTranslations');
+    });
+
+    it('generated system/index.ts does not export fetchTranslations when i18n disabled', () => {
+        generateAllFiles(MINIMAL_ANSWERS, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/system/index.ts'), 'utf-8');
+        expect(content).not.toContain('fetchTranslations');
+    });
+});
+
+describe('integration: i18nDb feature', () => {
+    it('generates migration file when i18nDb enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true, i18nDb: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const filePath = path.join(tmpDir, 'packages/codegen/resources/database/001-translations.sql');
+        expect(fs.existsSync(filePath)).toBe(true);
+
+        const content = fs.readFileSync(filePath, 'utf-8');
+        expect(content).toContain('CREATE TABLE');
+        expect(content).toContain('translations');
+        expect(content).toContain('locale');
+        expect(content).toContain('UNIQUE');
+    });
+
+    it('does not generate migration when i18nDb disabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true, i18nDb: false };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        expect(fs.existsSync(
+            path.join(tmpDir, 'packages/codegen/resources/database/001-translations.sql'),
+        )).toBe(false);
+    });
+
+    it('generated webapi index.ts includes postgresqlSource when i18nDb enabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true, i18nDb: true };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(content).toContain('postgresqlSource');
+    });
+
+    it('generated webapi index.ts does not include postgresqlSource when i18nDb disabled', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true, i18nDb: false };
+        generateAllFiles(answers, { outputDir: tmpDir });
+
+        const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(content).not.toContain('postgresqlSource');
+    });
+
+    it('generates full i18n + i18nDb scaffold end-to-end', () => {
+        const answers = { ...MINIMAL_ANSWERS, i18n: true, i18nDb: true, oidc: true };
+        const results = generateAllFiles(answers, { outputDir: tmpDir });
+        const created = results.filter((r) => r.status === 'created');
+
+        // Should have more files than minimal (base ~40 + i18n + i18nDb + oidc)
+        expect(created.length).toBeGreaterThan(40);
+
+        // All i18n files present
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/src/controllers/translations-controller.ts'))).toBe(true);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webapi/resources/i18n/en.json'))).toBe(true);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/webclient/src/system/i18n/loader.ts'))).toBe(true);
+        expect(fs.existsSync(path.join(tmpDir, 'packages/codegen/resources/database/001-translations.sql'))).toBe(true);
+
+        // No unresolved placeholders in key files
+        const webapiIndex = fs.readFileSync(path.join(tmpDir, 'packages/webapi/src/index.ts'), 'utf-8');
+        expect(webapiIndex).not.toContain('{{');
+
+        const mainTsx = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/main.tsx'), 'utf-8');
+        expect(mainTsx).not.toContain('{{');
+
+        const homeTsx = fs.readFileSync(path.join(tmpDir, 'packages/webclient/src/pages/Home.tsx'), 'utf-8');
+        expect(homeTsx).not.toContain('{{');
     });
 });
