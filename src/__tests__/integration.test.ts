@@ -271,10 +271,10 @@ describe('integration: i18n feature', () => {
         const content = fs.readFileSync(path.join(tmpDir, 'packages/webapi/resources/i18n/en.json'), 'utf-8');
         const parsed = JSON.parse(content);
         expect(parsed['app.title']).toBe('TestApp');
-        expect(parsed['app.welcome']).toContain('{name}');
-        expect(parsed['items.count_zero']).toBeDefined();
-        expect(parsed['items.count_one']).toBeDefined();
-        expect(parsed['items.count_other']).toBeDefined();
+        expect(parsed['app.welcome']).toContain('${name}');
+        expect(parsed['items.count']).toBeDefined();
+        expect(Array.isArray(parsed['items.count'])).toBe(true);
+        expect(parsed['items.count']).toHaveLength(2);
     });
 
     it('generated translations controller has all three endpoints', () => {

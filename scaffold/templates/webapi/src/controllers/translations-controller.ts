@@ -23,7 +23,7 @@ export class TranslationsController extends BaseController {
      * Results are cached in Redis with no expiry (manual invalidation).
      */
     async getTranslations(req: Request, res: Response) {
-        const locale = req.params.locale ?? 'en';
+        const locale = String(req.params.locale ?? 'en');
         const cache = await req.services.get<CacheProvider>('cache');
         const translator = await req.services.get<Translator>('i18n');
 
@@ -51,14 +51,13 @@ export class TranslationsController extends BaseController {
 
     /**
      * GET /api/translations/cache/clear
-     * Clears all cached translations and reloads the translator from all sources.
+     * Clears all cached translation entries from Redis.
+     * The next request will re-fetch from the in-memory Translator catalog.
      */
     async clearCache(_req: Request, res: Response) {
         const cache = await _req.services.get<CacheProvider>('cache');
-        const translator = await _req.services.get<Translator>('i18n');
 
         await cache.deletePattern('i18n:*');
-        await translator.reload();
 
         res.json({ cleared: true });
     }
