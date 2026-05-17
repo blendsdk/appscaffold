@@ -10,7 +10,7 @@ export class HealthController extends BaseController {
         ];
     }
 
-    async check(req: Request, res: Response) {
+    async check(req: Request, res: Response): Promise<void> {
         const log = req.log!;
         const checks: Record<string, string> = {};
 

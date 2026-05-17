@@ -22,7 +22,7 @@ export class TranslationsController extends BaseController {
      * Returns all translations for the requested locale.
      * Results are cached in Redis with no expiry (manual invalidation).
      */
-    async getTranslations(req: Request, res: Response) {
+    async getTranslations(req: Request, res: Response): Promise<void> {
         const locale = String(req.params.locale ?? 'en');
         const cache = await req.services.get<CacheProvider>('cache');
         const translator = await req.services.get<Translator>('i18n');
@@ -41,7 +41,7 @@ export class TranslationsController extends BaseController {
      * Server-side translation example with interpolation.
      * Resolves locale from the Accept-Language header.
      */
-    async getGreeting(req: Request, res: Response) {
+    async getGreeting(req: Request, res: Response): Promise<void> {
         const translator = await req.services.get<Translator>('i18n');
         const locale = req.headers['accept-language']?.split(',')[0]?.trim() ?? 'en';
 
@@ -54,7 +54,7 @@ export class TranslationsController extends BaseController {
      * Reloads translation sources from disk and clears the Redis cache.
      * The next request will serve freshly loaded translations.
      */
-    async clearCache(_req: Request, res: Response) {
+    async clearCache(_req: Request, res: Response): Promise<void> {
         const reload = await _req.services.get<() => Promise<void>>('i18n:reload');
         const cache = await _req.services.get<CacheProvider>('cache');
 
