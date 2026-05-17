@@ -1,4 +1,2 @@
 
-app.registerController('/api/translations/:locale', TranslationsController, 'getTranslations');
-app.registerController('/api/greeting', TranslationsController, 'getGreeting');
-app.registerController('/api/admin/translations/cache/clear', TranslationsController, 'clearCache');
+app.registerController('/api/translations', TranslationsController);
