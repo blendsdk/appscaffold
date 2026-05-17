@@ -260,10 +260,12 @@ function buildTemplateVars(answers) {
   vars.I18N_HOME_IMPORT = "";
   vars.I18N_HOME_HOOK = "";
   vars.I18N_HOME_USAGE = "";
+  vars.I18N_HOME_RELOAD = "";
   if (answers.i18n) {
     vars.I18N_HOME_IMPORT = readPartial("i18n-home-import.txt");
     vars.I18N_HOME_HOOK = readPartial("i18n-home-hook.txt");
     vars.I18N_HOME_USAGE = readPartial("i18n-home-usage.txt");
+    vars.I18N_HOME_RELOAD = readPartial("i18n-home-reload.txt");
   }
   vars.I18N_SYSTEM_EXPORT = "";
   if (answers.i18n) {

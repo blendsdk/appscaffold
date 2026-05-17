@@ -51,14 +51,16 @@ export class TranslationsController extends BaseController {
 
     /**
      * GET /api/translations/cache/clear
-     * Clears all cached translation entries from Redis.
-     * The next request will re-fetch from the in-memory Translator catalog.
+     * Reloads translation sources from disk and clears the Redis cache.
+     * The next request will serve freshly loaded translations.
      */
     async clearCache(_req: Request, res: Response) {
+        const reload = await _req.services.get<() => Promise<void>>('i18n:reload');
         const cache = await _req.services.get<CacheProvider>('cache');
 
+        await reload();
         await cache.deletePattern('i18n:*');
 
-        res.json({ cleared: true });
+        res.json({ cleared: true, reloaded: true });
     }
 }

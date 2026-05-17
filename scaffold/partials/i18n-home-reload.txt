@@ -1,0 +1,4 @@
+
+            <Button appearance="outline" onClick={handleReloadTranslations}>
+                Reload Translations
+            </Button>

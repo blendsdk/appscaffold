@@ -21,6 +21,7 @@ export const Home: React.FC = () => {
             <Body1>Your application is running successfully.</Body1>
 {{I18N_HOME_USAGE}}
             <Button appearance="primary">Get Started</Button>
+{{I18N_HOME_RELOAD}}
         </div>
     );
 };

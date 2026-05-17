@@ -1,2 +1,8 @@
 
-    const { t } = useTranslations();
+    const { t, reloadTranslations } = useTranslations();
+
+    /** Reload translations from the server and refresh the UI. */
+    const handleReloadTranslations = async () => {
+        await fetch('/api/translations/cache/clear');
+        reloadTranslations();
+    };
